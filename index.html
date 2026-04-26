@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal For All — Comunicații accesibile, oriunde</title>
+<meta name="description" content="Aplicație Android pentru comunicare hands-free prin radiouri mesh LoRa. Construită din primul rând al specificațiilor pentru utilizatori cu deficiențe vizuale. Funcționează fără internet, fără telefonie mobilă.">
+<meta property="og:title" content="Signal For All">
+<meta property="og:description" content="Comunicații accesibile, oriunde — chiar și acolo unde semnalul nu mai există.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  :root {
+    --cream: #F4F1EA;
+    --cream-deep: #EBE6DA;
+    --paper: #FAF8F2;
+    --forest: #2C4A2E;
+    --forest-deep: #1A2F1B;
+    --moss: #849668;
+    --ochre: #B8602D;
+    --ochre-deep: #9A4D20;
+    --ink: #1A2118;
+  }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'ss01' on, 'cv11' on;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  @media (min-width: 1024px) {
+    .container { padding-left: 48px; padding-right: 48px; }
+  }
+
+  /* Typography */
+  .display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.02em; line-height: 1; }
+  .display-tight { letter-spacing: -0.035em; line-height: 0.95; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--moss);
+    font-weight: 500;
+  }
+
+  .section-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ochre);
+    font-feature-settings: 'lnum' on;
+    line-height: 1;
+  }
+
+  .pullquote {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--forest);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  /* Lines */
+  .rule { height: 1px; background: var(--forest); opacity: 0.18; }
+  .rule-thick { height: 2px; background: var(--forest); opacity: 0.22; }
+
+  /* Header / Nav */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    background: rgba(244, 241, 234, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .nav-logo .name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--forest);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--moss);
+  }
+  @media (max-width: 640px) {
+    .nav-logo .tag { display: none; }
+  }
+  .nav-links { display: flex; align-items: center; gap: 32px; font-size: 14px; }
+  .nav-links a { color: var(--forest); text-decoration: none; }
+  @media (max-width: 768px) {
+    .nav-links a:not(.btn) { display: none; }
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 2px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    font-size: 15px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--forest); color: var(--cream); }
+  .btn-primary:hover { background: var(--forest-deep); transform: translateY(-1px); }
+  .btn-secondary { border-color: var(--forest); color: var(--forest); background: transparent; }
+  .btn-secondary:hover { background: var(--forest); color: var(--cream); }
+  .btn-sm { padding: 8px 18px; font-size: 14px; }
+
+  /* Link underline animat */
+  .link-anim {
+    position: relative;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.3s ease;
+    text-decoration: none;
+  }
+  .link-anim:hover { background-size: 0% 1px; background-position: 100% 100%; }
+
+  /* Sections */
+  section { padding-top: 96px; padding-bottom: 96px; }
+  @media (min-width: 1024px) { section { padding-top: 128px; padding-bottom: 128px; } }
+
+  /* HERO */
+  .hero { padding-top: 144px; }
+  @media (min-width: 1024px) { .hero { padding-top: 180px; } }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 1024px) {
+    .hero-grid { grid-template-columns: 2fr 1fr; gap: 48px; align-items: end; }
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(48px, 8vw, 128px);
+    color: var(--forest);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+  .hero h1 .italic { font-style: italic; font-weight: 300; }
+
+  .hero p.lead {
+    font-size: clamp(18px, 1.5vw, 24px);
+    color: rgba(44, 74, 46, 0.8);
+    max-width: 640px;
+    line-height: 1.5;
+    margin-bottom: 40px;
+  }
+
+  .now-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .now-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ochre);
+    animation: pulse-soft 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero-aside {
+    border-left: 2px solid var(--ochre);
+    padding: 8px 0 8px 24px;
+  }
+  .hero-aside .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--moss);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+  }
+  .hero-aside p {
+    color: var(--forest);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .hero-aside p strong { font-weight: 500; }
+
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 16px; }
+
+  /* Section header pattern */
+  .sec-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-bottom: 80px;
+  }
+  @media (min-width: 1024px) {
+    .sec-grid { grid-template-columns: 1fr 2fr; gap: 48px; }
+  }
+
+  .sec-num-wrap .section-num {
+    font-size: clamp(64px, 8vw, 96px);
+    margin-bottom: 8px;
+  }
+
+  .sec-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(32px, 4vw, 56px);
+    color: var(--forest);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+
+  /* Two-column body */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    color: rgba(44, 74, 46, 0.8);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  @media (min-width: 640px) {
+    .two-col { grid-template-columns: 1fr 1fr; gap: 40px 40px; }
+  }
+  .two-col em { font-family: 'Fraunces', serif; font-style: italic; }
+
+  /* Stats trio */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px 40px;
+  }
+  @media (min-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .stat-block .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--moss);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+  }
+  .stat-block .stat-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 28px;
+    color: var(--forest);
+    margin-bottom: 12px;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.2;
+  }
+  .stat-block p {
+    color: rgba(44, 74, 46, 0.75);
+    line-height: 1.6;
+  }
+
+  /* Flow box */
+  .flow-box {
+    background: var(--paper);
+    border: 1px solid rgba(44, 74, 46, 0.15);
+    padding: 32px;
+    margin-bottom: 80px;
+  }
+  @media (min-width: 1024px) { .flow-box { padding: 48px; } }
+
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (min-width: 640px) { .flow-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1024px) { .flow-grid { grid-template-columns: repeat(6, 1fr); gap: 8px; } }
+
+  .flow-step { text-align: center; }
+  .flow-step .num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 28px;
+    color: var(--ochre);
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .flow-step .name {
+    font-weight: 500;
+    color: var(--forest);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .flow-step .sub {
+    color: rgba(44, 74, 46, 0.65);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Important banner */
+  .important {
+    margin-top: 64px;
+    border-top: 2px solid var(--ochre);
+    padding-top: 32px;
+  }
+  .important .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ochre);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+  }
+  .important p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(20px, 2vw, 28px);
+    color: var(--forest);
+    line-height: 1.4;
+    max-width: 900px;
+    font-weight: 500;
+  }
+  .accent-underline {
+    box-shadow: inset 0 -8px 0 rgba(184, 96, 45, 0.18);
+  }
+
+  /* Phase cards */
+  .phases-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  @media (min-width: 1024px) { .phases-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .phase-card {
+    background: var(--paper);
+    border: 1px solid rgba(44, 74, 46, 0.15);
+    padding: 32px;
+    transition: all 0.3s ease;
+  }
+  @media (min-width: 1024px) { .phase-card { padding: 40px; } }
+  .phase-card:hover { transform: translateY(-2px); }
+
+  .phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+  }
+  .phase-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 4px 10px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .phase-card h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 32px;
+    color: var(--forest);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .phase-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--moss);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .phase-card > p {
+    color: rgba(44, 74, 46, 0.8);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  .phase-list { list-style: none; }
+  .phase-list li {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: rgba(44, 74, 46, 0.75);
+    line-height: 1.5;
+  }
+  .phase-list .arrow {
+    color: var(--ochre);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .phases-note {
+    margin-top: 48px;
+    font-size: 14px;
+    color: rgba(44, 74, 46, 0.6);
+    font-style: italic;
+    max-width: 700px;
+  }
+
+  /* Values grid */
+  .values-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px 32px;
+  }
+  @media (min-width: 640px) { .values-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .values-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .value-block .rule-thick { margin-bottom: 20px; }
+  .value-block h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    color: var(--forest);
+    line-height: 1.25;
+    margin-bottom: 12px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .value-block p {
+    color: rgba(44, 74, 46, 0.7);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Contact section */
+  .contact-section {
+    background: var(--forest);
+    color: var(--cream);
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: end;
+  }
+  @media (min-width: 1024px) {
+    .contact-grid { grid-template-columns: 1.4fr 1fr; gap: 48px; }
+  }
+  .contact-section h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(40px, 5vw, 80px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+  .contact-section h2 .italic { font-style: italic; font-weight: 300; }
+  .contact-section .eyebrow { color: var(--ochre); margin-bottom: 24px; }
+  .contact-section p.intro {
+    color: rgba(244, 241, 234, 0.8);
+    font-size: 20px;
+    line-height: 1.5;
+    max-width: 640px;
+    margin-bottom: 40px;
+  }
+
+  .contact-info { display: flex; flex-direction: column; gap: 24px; }
+  .contact-info-block .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(244, 241, 234, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .contact-info-block a, .contact-info-block .val {
+    font-family: 'Fraunces', Georgia, serif;
+    color: var(--cream);
+    font-size: 22px;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .contact-info-block .small {
+    color: rgba(244, 241, 234, 0.5);
+    font-size: 12px;
+    margin-top: 4px;
+    font-family: inherit;
+  }
+  .contact-rule { height: 1px; background: var(--cream); opacity: 0.2; }
+
+  /* Footer */
+  footer {
+    padding: 48px 0;
+    background: var(--forest-deep);
+    color: rgba(244, 241, 234, 0.7);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 768px) {
+    .footer-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  footer .display-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  footer .meta {
+    font-size: 13px;
+    color: rgba(244, 241, 234, 0.6);
+    line-height: 1.6;
+  }
+  footer .small-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(244, 241, 234, 0.5);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  footer p { font-size: 13px; color: rgba(244, 241, 234, 0.7); line-height: 1.6; }
+  .footer-rule { height: 1px; background: var(--cream); opacity: 0.15; margin: 40px 0 24px; }
+  .footer-copy { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(244, 241, 234, 0.4); }
+
+  /* Reveal animation */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .now-dot { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--ochre);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 767px) {
+    .hero h1 { font-size: 56px; }
+    .sec-title { font-size: 32px; }
+  }
+
+  .text-ochre { color: var(--ochre); }
+  .mb-20 { margin-bottom: 80px; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="name">Signal For All</span>
+      <span class="tag">/ proiect 2026</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#problema" class="link-anim">Problema</a>
+      <a href="#cum-functioneaza" class="link-anim">Cum funcționează</a>
+      <a href="#parcurs" class="link-anim">Parcurs</a>
+      <a href="#contact" class="btn btn-primary btn-sm">Contact</a>
+    </nav>
+  </div>
+  <div class="rule"></div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="now-indicator reveal">
+          <span class="now-dot"></span>
+          <span class="eyebrow">În dezvoltare · faza I · 2026</span>
+        </div>
+
+        <h1 class="display reveal">
+          Comunicații<br>
+          <span class="italic">care merg</span><br>
+          oriunde.
+        </h1>
+
+        <p class="lead reveal" style="transition-delay: 0.2s;">
+          O aplicație Android pentru comunicare prin voce, hands-free, prin radiouri mesh LoRa. Construită din start pentru oameni cu deficiențe vizuale. Funcționează unde nu există semnal, fără internet, fără atingerea ecranului.
+        </p>
+
+        <div class="hero-actions reveal" style="transition-delay: 0.4s;">
+          <a href="#cum-functioneaza" class="btn btn-primary">
+            Aflați cum funcționează
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1L7 13M7 13L1 7M7 13L13 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#contact" class="btn btn-secondary">Suntem deschiși la dialog</a>
+        </div>
+      </div>
+
+      <aside class="reveal" style="transition-delay: 0.5s;">
+        <div class="hero-aside">
+          <div class="label">Pe scurt</div>
+          <p><strong>Vorbești în telefon.</strong> Mesajul ajunge la coleg printr-un radio mic. Telefonul lui îl citește cu voce tare. Totul fără internet, fără semnal celular, la 5–10 km distanță.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="rule"></div></div>
+
+<section id="problema">
+  <div class="container">
+    <div class="sec-grid">
+      <div class="sec-num-wrap reveal">
+        <div class="section-num">01</div>
+        <p class="eyebrow">Problema</p>
+      </div>
+      <div class="reveal" style="transition-delay: 0.15s;">
+        <h2 class="sec-title">Comunicarea prin voce nu este accesibilă tuturor — și nici peste tot.</h2>
+        <div class="two-col">
+          <p>Pentru oamenii cu deficiențe vizuale, multe aplicații sunt adaptate <em>după</em> ce sunt construite. Adaptările funcționează parțial. Nu funcționează când mâinile sunt ocupate cu bastonul, când zgomotul e mare, când mediul cere atenție completă.</p>
+          <p>Pentru voluntari Salvamont, echipe în natură, comunități în zone fără infrastructură — telefonia mobilă pur și simplu nu există. Radiourile profesionale sunt scumpe, complicate, cer licență.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule mb-20"></div>
+
+    <div class="stats-grid">
+      <div class="stat-block reveal">
+        <div class="label">Persoane cu deficiențe vizuale</div>
+        <div class="stat-num">~93.000 în România</div>
+        <p>Conform datelor publice. Mulți depind de aplicații neadaptate utilizării reale, în mișcare, fără ecran.</p>
+      </div>
+      <div class="stat-block reveal" style="transition-delay: 0.1s;">
+        <div class="label">Voluntari de teren</div>
+        <div class="stat-num">~900 salvatori montani</div>
+        <p>În cele 40 de structuri Salvamont. Operează în zone unde semnalul mobil dispare și instrumente alternative lipsesc.</p>
+      </div>
+      <div class="stat-block reveal" style="transition-delay: 0.2s;">
+        <div class="label">Comunități rurale</div>
+        <div class="stat-num">3.181 comune</div>
+        <p>Multe în zone cu acoperire celulară inconsistentă. Fără alternative ieftine pentru coordonare locală.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="rule"></div></div>
+
+<section id="cum-functioneaza">
+  <div class="container">
+    <div class="sec-grid">
+      <div class="sec-num-wrap reveal">
+        <div class="section-num">02</div>
+        <p class="eyebrow">Cum funcționează</p>
+      </div>
+      <div class="reveal" style="transition-delay: 0.15s;">
+        <h2 class="sec-title">Vocea ta. Un radio mic. Și o rețea care se autorepară.</h2>
+        <p class="pullquote" style="font-size: clamp(22px, 2.4vw, 32px); margin-bottom: 24px; max-width: 800px;">
+          „Construim pentru utilizatori cu deficiențe vizuale ca utilizatori principali — nu adăugăm accesibilitate ulterior."
+        </p>
+      </div>
+    </div>
+
+    <div class="flow-box reveal">
+      <p class="eyebrow" style="margin-bottom: 32px;">Flux complet — de la vocea ta la urechile colegului</p>
+      <div class="flow-grid">
+        <div class="flow-step"><div class="num">01</div><div class="name">Vorbești</div><div class="sub">în casca ta</div></div>
+        <div class="flow-step"><div class="num">02</div><div class="name">Telefon</div><div class="sub">vocea devine text</div></div>
+        <div class="flow-step"><div class="num">03</div><div class="name">Radio mesh</div><div class="sub">trimite prin LoRa</div></div>
+        <div class="flow-step"><div class="num">04</div><div class="name">Radio coleg</div><div class="sub">primește textul</div></div>
+        <div class="flow-step"><div class="num">05</div><div class="name">Telefon</div><div class="sub">text devine voce</div></div>
+        <div class="flow-step"><div class="num">06</div><div class="name">Aude</div><div class="sub">în casca lui</div></div>
+      </div>
+    </div>
+
+    <div class="two-col" style="font-size: 16px;">
+      <div class="reveal">
+        <p class="eyebrow" style="margin-bottom: 16px;">Esențial</p>
+        <h3 style="font-family: 'Fraunces', serif; font-size: 26px; color: var(--forest); margin-bottom: 16px; line-height: 1.25; letter-spacing: -0.015em; font-weight: 500;">Fără infrastructură. Fără cost recurent.</h3>
+        <p style="color: rgba(44,74,46,0.75); line-height: 1.6;">Sistemul nu depinde de internet, de operatori de telefonie, de servere centrale. Funcționează între radiourile dintre voi, în mod descentralizat. Două telefoane Android, două radiouri mesh — și aveți comunicare la 5–10 km în linie de vedere.</p>
+      </div>
+      <div class="reveal" style="transition-delay: 0.1s;">
+        <p class="eyebrow" style="margin-bottom: 16px;">Tehnologii</p>
+        <h3 style="font-family: 'Fraunces', serif; font-size: 26px; color: var(--forest); margin-bottom: 16px; line-height: 1.25; letter-spacing: -0.015em; font-weight: 500;">Open-source, standardizat, replicabil.</h3>
+        <p style="color: rgba(44,74,46,0.75); line-height: 1.6;">Sub capotă: protocolul Meshtastic (LoRa 868 MHz, banda ISM liberă conform ANCOM), aplicație Android cu STT/TTS on-device pentru confidențialitate, criptare end-to-end între noduri. Hardware accesibil ~25 EUR/nod.</p>
+      </div>
+    </div>
+
+    <div class="important reveal">
+      <div class="lbl">Important</div>
+      <p>Signal For All este un sistem <span class="accent-underline">complementar</span> de comunicare. Nu este un sistem de urgență, nu înlocuiește 112, TETRA, sau radiourile profesionale. Această claritate este esențială pentru poziționarea proiectului.</p>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="rule"></div></div>
+
+<section id="parcurs">
+  <div class="container">
+    <div class="sec-grid">
+      <div class="sec-num-wrap reveal">
+        <div class="section-num">03</div>
+        <p class="eyebrow">Parcursul proiectului</p>
+      </div>
+      <div class="reveal" style="transition-delay: 0.15s;">
+        <h2 class="sec-title">Pas cu pas. Cu disciplină. Cu gate-uri reale între faze.</h2>
+        <p style="color: rgba(44,74,46,0.75); font-size: 18px; line-height: 1.6; max-width: 800px;">
+          Construim acum fundația. Anul viitor, dacă fundația ține, începem pilotul cu parteneri. În 2029, dacă pilotul a reușit complet, explorăm scalarea. Fiecare etapă are criterii clare de succes — nu trecem mai departe doar pentru că a trecut timpul.
+        </p>
+      </div>
+    </div>
+
+    <div class="phases-grid">
+      <article class="phase-card reveal">
+        <div class="phase-header">
+          <span class="phase-badge text-ochre">I — În curs</span>
+          <span class="mono" style="font-size: 11px; color: var(--moss);">2026</span>
+        </div>
+        <h3>Fundație</h3>
+        <div class="phase-meta">9 luni · finanțare confirmată</div>
+        <p>Construim aplicația Android, demonstrăm hardware-ul în condiții reale, publicăm documentația tehnică, identificăm primii prospecți de pilot.</p>
+        <ul class="phase-list">
+          <li><span class="arrow">→</span><span>Aplicație Android funcțională cu STT/TTS</span></li>
+          <li><span class="arrow">→</span><span>Demo end-to-end documentat video</span></li>
+          <li><span class="arrow">→</span><span>Documentație publică pe GitHub</span></li>
+          <li><span class="arrow">→</span><span>Identificare 5–6 prospecți Tier 1</span></li>
+        </ul>
+      </article>
+
+      <article class="phase-card reveal" style="transition-delay: 0.1s;">
+        <div class="phase-header">
+          <span class="phase-badge" style="color: rgba(44,74,46,0.6);">II — Planificat</span>
+          <span class="mono" style="font-size: 11px; color: var(--moss);">2027–2028</span>
+        </div>
+        <h3>Pilot</h3>
+        <div class="phase-meta">24 luni · ~186k EUR</div>
+        <p>Pilot real cu 2–3 parteneri (asociații accesibilitate, Salvamont, primării rurale). Validare în condiții reale și publicare framework de adopție.</p>
+        <ul class="phase-list">
+          <li><span class="arrow">→</span><span>9+ luni operare reală documentată</span></li>
+          <li><span class="arrow">→</span><span>Framework reutilizabil RO + EN</span></li>
+          <li><span class="arrow">→</span><span>Studii de caz publicate</span></li>
+          <li><span class="arrow">→</span><span>Diseminare la conferințe</span></li>
+        </ul>
+      </article>
+
+      <article class="phase-card reveal" style="transition-delay: 0.2s;">
+        <div class="phase-header">
+          <span class="phase-badge" style="color: rgba(44,74,46,0.4);">III — Explorare</span>
+          <span class="mono" style="font-size: 11px; color: var(--moss);">2029–2030</span>
+        </div>
+        <h3>Scalare</h3>
+        <div class="phase-meta">Doar dacă faza II reușește</div>
+        <p>Doar dacă pilotul a reușit complet și capacitatea organizațională s-a consolidat. Atunci explorăm potențialul de scalare, în consorțiu cu parteneri tehnici.</p>
+        <ul class="phase-list">
+          <li><span class="arrow">→</span><span>Necesită 3+ angajați full-time</span></li>
+          <li><span class="arrow">→</span><span>Track record verificabil</span></li>
+          <li><span class="arrow">→</span><span>Consorțiu cu integrator + universitate</span></li>
+          <li><span class="arrow">→</span><span>Cerere scrisă de la organizație Tier 2</span></li>
+        </ul>
+      </article>
+    </div>
+
+    <p class="phases-note reveal">
+      Onestitate brutală: dacă o fază nu îndeplinește criteriile de avansare, nu trecem la următoarea. NO-GO nu este eșec — este disciplină. Ne oprim, consolidăm, încercăm peste 6 luni.
+    </p>
+  </div>
+</section>
+
+<div class="container"><div class="rule"></div></div>
+
+<section>
+  <div class="container">
+    <div class="sec-grid">
+      <div class="sec-num-wrap reveal">
+        <div class="section-num">04</div>
+        <p class="eyebrow">Despre proiect</p>
+      </div>
+      <div class="reveal" style="transition-delay: 0.15s;">
+        <h2 class="sec-title">Construim ca un proiect civic-tech, nu ca un produs comercial.</h2>
+      </div>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-block reveal">
+        <div class="rule-thick"></div>
+        <h3>Open-source<br>din primul commit</h3>
+        <p>Codul, documentația, deciziile sunt publice. Cine vrea, poate replica, contribui sau critica.</p>
+      </div>
+      <div class="value-block reveal" style="transition-delay: 0.1s;">
+        <div class="rule-thick"></div>
+        <h3>Accessibility-native<br>nu adaptat ulterior</h3>
+        <p>Utilizatorii cu deficiențe vizuale sunt utilizatori principali, nu un caz secundar de testat la sfârșit.</p>
+      </div>
+      <div class="value-block reveal" style="transition-delay: 0.2s;">
+        <div class="rule-thick"></div>
+        <h3>Onestitate<br>asupra limitărilor</h3>
+        <p>Spunem clar ce nu este sistemul. Nu un sistem de urgență. Nu un înlocuitor pentru radiourile profesionale.</p>
+      </div>
+      <div class="value-block reveal" style="transition-delay: 0.3s;">
+        <div class="rule-thick"></div>
+        <h3>Disciplină<br>peste ambiție</h3>
+        <p>Faze clare, criterii reale de avansare, dispoziție să spunem „NO-GO" când realitatea o cere.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact-section">
+  <div class="container">
+    <div class="contact-grid">
+      <div>
+        <p class="eyebrow">Cuvântul deschis</p>
+        <h2>Să stăm de vorbă —<br><span class="italic">cum vă e mai comod.</span></h2>
+        <p class="intro">Nu căutăm clienți. Căutăm parteneri serioși de pilot, organizații care lucrează cu accesibilitate sau în zone fără semnal, oameni care pot da feedback brutal-onest. Dacă cele de mai sus vă rezonează — scrieți-ne.</p>
+      </div>
+
+      <div class="contact-info reveal">
+        <div class="contact-info-block">
+          <div class="label">Email principal</div>
+          <a href="mailto:contact@signalforall.ro" class="link-anim" style="font-size: 24px;">contact@signalforall.ro</a>
+        </div>
+        <div class="contact-rule"></div>
+        <div class="contact-info-block">
+          <div class="label">Cod sursă</div>
+          <a href="#" class="link-anim" style="font-size: 20px;">github.com/signalforall</a>
+          <div class="small">link adăugat în următoarele săptămâni</div>
+        </div>
+        <div class="contact-rule"></div>
+        <div class="contact-info-block">
+          <div class="label">Bazat în</div>
+          <span class="val" style="font-size: 18px;">București · România</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <p class="display-name">Signal For All</p>
+        <p class="meta">Proiect civic-tech open-source<br>Asociația [denumire]</p>
+      </div>
+      <div>
+        <p class="small-label">Finanțare 2026</p>
+        <p>Programul european NGI<br>(Next Generation Internet)</p>
+      </div>
+      <div>
+        <p class="small-label">Licență</p>
+        <p>Cod: GPL-3.0<br>Documentație: CC BY-SA 4.0</p>
+      </div>
+    </div>
+    <div class="footer-rule"></div>
+    <p class="footer-copy">© 2026 · Signal For All · Pagină actualizată aprilie 2026</p>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  setTimeout(() => {
+    document.querySelectorAll('.hero .reveal').forEach(el => el.classList.add('visible'));
+  }, 100);
+</script>
+
+</body>
+</html>
